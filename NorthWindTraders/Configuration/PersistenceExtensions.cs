@@ -9,13 +9,14 @@ public static class PersistenceExtensions
 {
     public static IServiceCollection AddNorthwindPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("Northwind");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                "Missing required connection string 'ConnectionStrings:Northwind'. Configure a live SQL Server database.");
+
         services.AddDbContext<NorthwindDbContext>(options =>
         {
-            var connectionString = configuration.GetConnectionString("Northwind");
-            if (string.IsNullOrWhiteSpace(connectionString))
-                options.UseInMemoryDatabase("NorthwindApi");
-            else
-                options.UseSqlServer(connectionString);
+            options.UseSqlServer(connectionString);
         });
 
         services.AddScoped<ICustomerOverviewDataAccess, EfCustomerOverviewDataAccess>();

@@ -118,7 +118,7 @@ Design is ready for future:
 
 ## Tradeoffs Made
 
-- **EF Core InMemory fallback** in API host when no connection string is set helps local startup, but behavior can differ from SQL Server translation details.
+- **No in-memory fallback in API host**: service now fails fast if `ConnectionStrings:Northwind` is missing to avoid environment drift from SQL Server behavior.
 - **Offset pagination** (`Skip/Take`) is simple and acceptable for assessment scope; deep-page performance can degrade for very large datasets.
 - **Current tests focus on query/aggregation correctness**, not full API integration via `WebApplicationFactory`.
 
@@ -147,6 +147,33 @@ Potential next-level improvements:
 ---
 
 ## Local Run (macOS)
+
+### One-command setup + run
+
+```bash
+./scripts/dev-up.sh
+```
+
+This script:
+- checks and installs missing prerequisites when possible (`dotnet`, Docker via Homebrew)
+- starts Docker daemon if needed
+- creates/starts SQL container (`northwind-sql`)
+- creates/seeds Northwind DB if needed
+- starts the API host
+
+Useful flags:
+
+```bash
+./scripts/dev-up.sh --setup-only   # prepare dependencies + DB, do not run API
+./scripts/dev-up.sh --force-seed   # force re-import of Northwind schema/data
+```
+
+DB-only helper (for running API manually from Rider):
+
+```bash
+./scripts/db-up.sh
+./scripts/db-up.sh --force-seed
+```
 
 ### Prerequisites
 
